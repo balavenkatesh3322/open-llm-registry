@@ -1,0 +1,6 @@
+{
+  "name": "OpenLLM Index",
+  "description": "An interactive, developer-first directory and comparison engine for open-source LLMs, featuring VRAM calculators, use-case filters, and code snippets.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
