@@ -280,21 +280,11 @@ export default function RegistryPanel({
                 <Star className="w-4 h-4 fill-rose-400/20" />
               </span>
               <div>
-                <h3 className="text-base font-extrabold text-slate-100 tracking-tight font-display">Onyx Open LLM Leaderboard</h3>
-                <p className="text-xs text-slate-400 font-sans">Trending open weights, updated from onyx.app/open-llm-leaderboard</p>
+                <h3 className="text-base font-extrabold text-slate-100 tracking-tight font-display">Featured Open LLMs</h3>
+                <p className="text-xs text-slate-400 font-sans">Trending open weights curated by benchmark performance and license allowances.</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <a 
-                href="https://onyx.app/open-llm-leaderboard" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/25 text-[10px] font-mono font-bold text-indigo-300 hover:text-indigo-250 transition-all rounded"
-                title="View on Onyx Leaderboard"
-              >
-                <Globe className="w-3 h-3" />
-                Onyx Leaderboard ↗
-              </a>
               <span className="text-[10px] font-mono font-bold px-2.5 py-1 rounded bg-rose-500/10 border border-rose-500/25 text-rose-300 uppercase tracking-wider animate-pulse">Live Curations</span>
             </div>
           </div>
