@@ -166,13 +166,17 @@ export default function MatchingWizard({ models, onSelectModel }: MatchingWizard
                 onClick={() => setUseCase(opt.id)}
                 className={`p-4 text-left border rounded-md transition-all relative cursor-pointer ${
                   useCase === opt.id 
-                    ? 'border-indigo-500 bg-indigo-500/5 text-slate-100' 
-                    : 'border-brand-border bg-brand-bg/30 hover:border-slate-700 text-slate-400 hover:text-slate-200'
+                    ? 'border-indigo-500 bg-indigo-50/80 dark:bg-indigo-500/10 text-indigo-900 dark:text-indigo-300' 
+                    : 'border-brand-border bg-white dark:bg-brand-bg/30 hover:border-slate-300 dark:hover:border-slate-700 text-slate-600 dark:text-slate-400'
                 }`}
                 id={`wizard-usecase-${opt.id}`}
               >
-                <h4 className="text-xs font-bold font-sans mb-1 text-slate-250">{opt.title}</h4>
-                <p className="text-[10px] text-slate-500 leading-normal">{opt.desc}</p>
+                <h4 className={`text-xs font-bold font-sans mb-1 ${
+                  useCase === opt.id ? 'text-indigo-900 dark:text-indigo-200' : 'text-slate-700 dark:text-slate-300'
+                }`}>{opt.title}</h4>
+                <p className={`text-[10px] leading-normal ${
+                  useCase === opt.id ? 'text-indigo-700 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400'
+                }`}>{opt.desc}</p>
               </button>
             ))}
           </div>
@@ -213,13 +217,17 @@ export default function MatchingWizard({ models, onSelectModel }: MatchingWizard
                 onClick={() => setHardware(opt.id)}
                 className={`p-4 text-left border rounded-md transition-all relative cursor-pointer ${
                   hardware === opt.id 
-                    ? 'border-teal-500 bg-teal-500/5 text-slate-100' 
-                    : 'border-brand-border bg-brand-bg/30 hover:border-slate-700 text-slate-400 hover:text-slate-200'
+                    ? 'border-teal-500 bg-teal-50/80 dark:bg-teal-500/10 text-teal-900 dark:text-teal-300' 
+                    : 'border-brand-border bg-white dark:bg-brand-bg/30 hover:border-slate-300 dark:hover:border-slate-700 text-slate-600 dark:text-slate-400'
                 }`}
                 id={`wizard-hardware-${opt.id}`}
               >
-                <h4 className="text-xs font-bold font-sans mb-1 text-slate-250">{opt.title}</h4>
-                <p className="text-[10px] text-slate-500 leading-normal">{opt.desc}</p>
+                <h4 className={`text-xs font-bold font-sans mb-1 ${
+                  hardware === opt.id ? 'text-teal-900 dark:text-teal-200' : 'text-slate-700 dark:text-slate-300'
+                }`}>{opt.title}</h4>
+                <p className={`text-[10px] leading-normal ${
+                  hardware === opt.id ? 'text-teal-700 dark:text-teal-400' : 'text-slate-500 dark:text-slate-400'
+                }`}>{opt.desc}</p>
               </button>
             ))}
           </div>
@@ -227,7 +235,7 @@ export default function MatchingWizard({ models, onSelectModel }: MatchingWizard
           <div className="flex justify-between pt-2">
             <button
               onClick={() => setStep(1)}
-              className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 border border-brand-border hover:border-slate-700 text-slate-350 text-xs font-mono font-bold uppercase tracking-wider rounded-md transition-colors cursor-pointer"
+              className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800 dark:border-brand-border dark:text-slate-300 text-xs font-mono font-bold uppercase tracking-wider rounded-md transition-colors cursor-pointer"
               id="wizard-prev-2"
             >
               Back
@@ -265,13 +273,17 @@ export default function MatchingWizard({ models, onSelectModel }: MatchingWizard
                 onClick={() => setLicense(opt.id)}
                 className={`p-4 text-left border rounded-md transition-all relative cursor-pointer ${
                   license === opt.id 
-                    ? 'border-emerald-500 bg-emerald-500/5 text-slate-100' 
-                    : 'border-brand-border bg-brand-bg/30 hover:border-slate-700 text-slate-400 hover:text-slate-200'
+                    ? 'border-emerald-500 bg-emerald-50/80 dark:bg-emerald-500/10 text-emerald-900 dark:text-emerald-300' 
+                    : 'border-brand-border bg-white dark:bg-brand-bg/30 hover:border-slate-300 dark:hover:border-slate-700 text-slate-600 dark:text-slate-400'
                 }`}
                 id={`wizard-license-${opt.id}`}
               >
-                <h4 className="text-xs font-bold font-sans mb-1 text-slate-250">{opt.title}</h4>
-                <p className="text-[10px] text-slate-500 leading-normal">{opt.desc}</p>
+                <h4 className={`text-xs font-bold font-sans mb-1 ${
+                  license === opt.id ? 'text-emerald-900 dark:text-emerald-200' : 'text-slate-700 dark:text-slate-300'
+                }`}>{opt.title}</h4>
+                <p className={`text-[10px] leading-normal ${
+                  license === opt.id ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-400'
+                }`}>{opt.desc}</p>
               </button>
             ))}
           </div>
@@ -279,7 +291,7 @@ export default function MatchingWizard({ models, onSelectModel }: MatchingWizard
           <div className="flex justify-between pt-2">
             <button
               onClick={() => setStep(2)}
-              className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 border border-brand-border hover:border-slate-700 text-slate-350 text-xs font-mono font-bold uppercase tracking-wider rounded-md transition-colors cursor-pointer"
+              className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800 dark:border-brand-border dark:text-slate-300 text-xs font-mono font-bold uppercase tracking-wider rounded-md transition-colors cursor-pointer"
               id="wizard-prev-3"
             >
               Back
@@ -317,13 +329,17 @@ export default function MatchingWizard({ models, onSelectModel }: MatchingWizard
                 onClick={() => setContext(opt.id)}
                 className={`p-4 text-left border rounded-md transition-all relative cursor-pointer ${
                   context === opt.id 
-                    ? 'border-amber-500 bg-amber-500/5 text-slate-100' 
-                    : 'border-brand-border bg-brand-bg/30 hover:border-slate-700 text-slate-400 hover:text-slate-200'
+                    ? 'border-amber-500 bg-amber-50/80 dark:bg-amber-500/10 text-amber-900 dark:text-amber-300' 
+                    : 'border-brand-border bg-white dark:bg-brand-bg/30 hover:border-slate-300 dark:hover:border-slate-700 text-slate-600 dark:text-slate-400'
                 }`}
                 id={`wizard-context-${opt.id}`}
               >
-                <h4 className="text-xs font-bold font-sans mb-1 text-slate-250">{opt.title}</h4>
-                <p className="text-[10px] text-slate-500 leading-normal">{opt.desc}</p>
+                <h4 className={`text-xs font-bold font-sans mb-1 ${
+                  context === opt.id ? 'text-amber-900 dark:text-amber-200' : 'text-slate-700 dark:text-slate-300'
+                }`}>{opt.title}</h4>
+                <p className={`text-[10px] leading-normal ${
+                  context === opt.id ? 'text-amber-700 dark:text-amber-400' : 'text-slate-500 dark:text-slate-400'
+                }`}>{opt.desc}</p>
               </button>
             ))}
           </div>
@@ -331,7 +347,7 @@ export default function MatchingWizard({ models, onSelectModel }: MatchingWizard
           <div className="flex justify-between pt-2">
             <button
               onClick={() => setStep(3)}
-              className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 border border-brand-border hover:border-slate-700 text-slate-350 text-xs font-mono font-bold uppercase tracking-wider rounded-md transition-colors cursor-pointer"
+              className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800 dark:border-brand-border dark:text-slate-300 text-xs font-mono font-bold uppercase tracking-wider rounded-md transition-colors cursor-pointer"
               id="wizard-prev-4"
             >
               Back
@@ -365,12 +381,14 @@ export default function MatchingWizard({ models, onSelectModel }: MatchingWizard
             {recommendations.slice(0, 3).map((item, idx) => (
               <div 
                 key={item.model.id}
-                className="bg-brand-bg/60 border border-brand-border hover:border-slate-700/80 rounded-md p-5 transition-all flex flex-col md:flex-row justify-between gap-5 relative overflow-hidden"
+                className="bg-white dark:bg-brand-bg/60 border border-brand-border hover:border-slate-300 dark:hover:border-slate-700/80 rounded-md p-5 transition-all flex flex-col md:flex-row justify-between gap-5 relative overflow-hidden"
               >
                 {/* Ranking Tag */}
                 <div className="absolute top-0 left-0">
                   <span className={`text-[9px] font-mono font-bold px-2.5 py-1 block rounded-br-md uppercase tracking-wider ${
-                    idx === 0 ? 'bg-indigo-600 text-white' : 'bg-slate-850 text-slate-300'
+                    idx === 0 
+                      ? 'bg-indigo-600 text-white' 
+                      : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-r border-b border-slate-200 dark:border-brand-border'
                   }`}>
                     MATCH RANK #{idx + 1}
                   </span>
@@ -378,21 +396,21 @@ export default function MatchingWizard({ models, onSelectModel }: MatchingWizard
 
                 <div className="space-y-2 mt-2 md:mt-0 max-w-md">
                   <div className="flex items-center gap-2">
-                    <span className="text-[9px] font-mono tracking-wider bg-slate-950 text-slate-455 px-2 py-0.5 border border-brand-border rounded-sm uppercase font-bold">
+                    <span className="text-[9px] font-mono tracking-wider bg-slate-50 text-slate-700 dark:bg-slate-950 dark:text-slate-400 px-2 py-0.5 border border-slate-200 dark:border-brand-border rounded-sm uppercase font-bold">
                       {item.model.provider}
                     </span>
-                    <span className="text-[9px] font-mono tracking-wider bg-indigo-500/5 text-indigo-300 px-2 py-0.5 border border-indigo-500/10 rounded-sm font-bold">
+                    <span className="text-[9px] font-mono tracking-wider bg-indigo-50 text-indigo-700 dark:bg-indigo-500/5 dark:text-indigo-300 px-2 py-0.5 border border-indigo-100 dark:border-indigo-500/10 rounded-sm font-bold">
                       {item.model.parameters}
                     </span>
                   </div>
-                  <h4 className="text-sm font-bold text-slate-100 font-display">{item.model.name}</h4>
-                  <p className="text-xs text-slate-400 leading-relaxed line-clamp-2 font-sans">{item.model.description}</p>
+                  <h4 className="text-sm font-bold text-slate-800 dark:text-slate-100 font-display">{item.model.name}</h4>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-2 font-sans">{item.model.description}</p>
                   
                   {/* Matching reasons */}
-                  <div className="space-y-1.5 pt-1.5 border-t border-brand-border/40 mt-2">
+                  <div className="space-y-1.5 pt-1.5 border-t border-slate-100 dark:border-brand-border/40 mt-2">
                     {item.reasons.map((r, i) => (
-                      <div key={i} className="flex items-center gap-2 text-[11px] text-slate-350">
-                        <CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                      <div key={i} className="flex items-center gap-2 text-[11px] text-slate-650 dark:text-slate-300">
+                        <CheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                         <span className="font-sans font-medium">{r}</span>
                       </div>
                     ))}
@@ -401,12 +419,12 @@ export default function MatchingWizard({ models, onSelectModel }: MatchingWizard
 
                 <div className="flex flex-col justify-between shrink-0 items-end gap-3 min-w-[120px]">
                   <div className="text-right">
-                    <span className="text-[9px] font-mono text-slate-500 uppercase font-bold tracking-wider block">Match Score</span>
-                    <strong className="text-2xl font-bold text-indigo-400 font-mono">{item.score}%</strong>
+                    <span className="text-[9px] font-mono text-slate-400 dark:text-slate-500 uppercase font-bold tracking-wider block">Match Score</span>
+                    <strong className="text-2xl font-bold text-indigo-600 dark:text-indigo-400 font-mono">{item.score}%</strong>
                   </div>
                   <button
                     onClick={() => onSelectModel(item.model.id)}
-                    className="w-full text-center px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-md transition-colors cursor-pointer"
+                    className="w-full text-center px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-md transition-colors cursor-pointer shadow-sm"
                     id={`wizard-match-select-${item.model.id}`}
                   >
                     Load Specs
@@ -419,7 +437,7 @@ export default function MatchingWizard({ models, onSelectModel }: MatchingWizard
           <div className="flex items-center justify-between border-t border-brand-border pt-5">
             <button
               onClick={resetWizard}
-              className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 border border-brand-border hover:border-slate-700 text-slate-350 text-xs font-mono font-bold uppercase tracking-wider rounded-md transition-all cursor-pointer"
+              className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800 dark:border-brand-border dark:text-slate-300 text-xs font-mono font-bold uppercase tracking-wider rounded-md transition-all cursor-pointer"
               id="wizard-restart-btn"
             >
               <RefreshCw className="w-3.5 h-3.5" />

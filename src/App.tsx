@@ -25,7 +25,9 @@ import {
   Linkedin,
   Heart,
   Gift,
-  Globe
+  Globe,
+  Sun,
+  Moon
 } from 'lucide-react';
 
 export default function App() {
@@ -34,6 +36,21 @@ export default function App() {
   const [selectedCompareIds, setSelectedCompareIds] = useState<string[]>(['deepseek-r1', 'llama-3.3-70b-instruct']);
   const [selectedVramModelId, setSelectedVramModelId] = useState<string>('llama-3.3-70b-instruct');
   const [globalSearch, setGlobalSearch] = useState('');
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    const saved = localStorage.getItem('theme');
+    return (saved as 'light' | 'dark') || 'light';
+  });
+
+  // Apply theme class to HTML element
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   // Load models from README.md on mount
   useEffect(() => {
@@ -234,6 +251,14 @@ export default function App() {
                 </select>
               </div>
 
+              <button
+                onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+                className="p-2 bg-slate-900/60 border border-brand-border hover:bg-slate-800 rounded text-slate-400 hover:text-slate-100 transition-all cursor-pointer flex items-center justify-center shrink-0"
+                title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+              >
+                {theme === 'light' ? <Moon className="w-4 h-4 text-indigo-400" /> : <Sun className="w-4 h-4 text-amber-500 animate-spin-slow" />}
+              </button>
+
               <a
                 href="https://balavenkatesh3322.github.io/bala_venkatesh_profile/"
                 target="_blank"
@@ -358,7 +383,7 @@ export default function App() {
                 </button>
                 <button
                   onClick={() => setActiveTab('wizard')}
-                  className="px-4 py-2.5 bg-slate-900/50 hover:bg-slate-900 border border-brand-border hover:border-slate-700 text-slate-300 text-xs font-semibold rounded-md transition-all cursor-pointer"
+                  className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-900/50 dark:hover:bg-slate-900 border border-slate-200 dark:border-brand-border hover:border-slate-300 dark:hover:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold rounded-md transition-all cursor-pointer"
                   id="hero-quiz-cta"
                 >
                   Guided Model Matcher
@@ -527,7 +552,7 @@ export default function App() {
               </p>
               <div>
                 <a 
-                  href="https://github.com/balavenkatesh3322" 
+                  href="https://github.com/balavenkatesh3322/open-llm-registry" 
                   target="_blank" 
                   referrerPolicy="no-referrer"
                   className="inline-flex items-center gap-1.5 text-xs text-emerald-400 font-semibold hover:text-emerald-300 transition-colors"
@@ -585,21 +610,21 @@ export default function App() {
             {/* Premium Social Badge Container */}
             <div className="flex flex-wrap items-center justify-center gap-2.5">
               <a 
-                href="https://github.com/balavenkatesh3322" 
+                href="https://github.com/balavenkatesh3322/open-llm-registry" 
                 target="_blank" 
                 referrerPolicy="no-referrer"
-                className="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-900/60 border border-brand-border hover:border-slate-700 text-slate-300 hover:text-white rounded-md transition-all text-xs font-sans"
-                title="GitHub Profile"
+                className="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-900/60 border border-slate-200 dark:border-brand-border hover:border-slate-300 dark:hover:border-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded-md transition-all text-xs font-sans"
+                title="GitHub Repository"
               >
                 <Github className="w-3.5 h-3.5 text-indigo-400" />
-                <span>GitHub</span>
+                <span>GitHub Repository</span>
               </a>
 
               <a 
                 href="https://www.linkedin.com/in/bala-venkatesh-67964247/" 
                 target="_blank" 
                 referrerPolicy="no-referrer"
-                className="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-900/60 border border-brand-border hover:border-slate-700 text-slate-300 hover:text-white rounded-md transition-all text-xs font-sans"
+                className="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-900/60 border border-slate-200 dark:border-brand-border hover:border-slate-300 dark:hover:border-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded-md transition-all text-xs font-sans"
                 title="LinkedIn Profile"
               >
                 <Linkedin className="w-3.5 h-3.5 text-indigo-400" />
@@ -610,7 +635,7 @@ export default function App() {
                 href="https://balavenkatesh3322.github.io/bala_venkatesh_profile/" 
                 target="_blank" 
                 referrerPolicy="no-referrer"
-                className="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-900/60 border border-brand-border hover:border-slate-700 text-slate-300 hover:text-white rounded-md transition-all text-xs font-sans"
+                className="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-900/60 border border-slate-200 dark:border-brand-border hover:border-slate-300 dark:hover:border-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded-md transition-all text-xs font-sans"
                 title="Professional Portfolio"
               >
                 <Compass className="w-3.5 h-3.5 text-indigo-400" />
@@ -619,7 +644,7 @@ export default function App() {
 
               <a 
                 href="mailto:venkateshpnk22@gmail.com" 
-                className="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-900/60 border border-brand-border hover:border-slate-700 text-slate-300 hover:text-white rounded-md transition-all text-xs font-mono text-[11px]"
+                className="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-900/60 border border-slate-200 dark:border-brand-border hover:border-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded-md transition-all text-xs font-mono text-[11px]"
                 title="Email Direct"
               >
                 <span>venkateshpnk22@gmail.com</span>

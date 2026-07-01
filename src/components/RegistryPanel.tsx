@@ -200,13 +200,13 @@ export default function RegistryPanel({
                   onClick={() => toggleProvider(prov)}
                   className={`w-full text-left px-3 py-2 text-xs rounded-md border transition-all flex items-center justify-between cursor-pointer ${
                     isChecked
-                      ? 'bg-indigo-550/10 text-indigo-400 border-indigo-500/40 font-semibold'
-                      : 'bg-slate-950/30 text-slate-400 border-brand-border hover:bg-slate-900/40'
+                      ? 'bg-indigo-50 hover:bg-indigo-100 border-indigo-200 text-indigo-700 dark:bg-indigo-500/10 dark:hover:bg-indigo-500/20 dark:text-indigo-400 dark:border-indigo-500/40 font-semibold'
+                      : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100 dark:bg-slate-900/40 dark:text-slate-400 dark:border-brand-border dark:hover:bg-slate-800/40'
                   }`}
                   id={`filter-prov-${prov.replace(/\s+/g, '-')}`}
                 >
                   <span>{prov}</span>
-                  {isChecked && <Check className="w-3.5 h-3.5 text-indigo-400" />}
+                  {isChecked && <Check className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />}
                 </button>
               );
             })}
@@ -225,13 +225,13 @@ export default function RegistryPanel({
                   onClick={() => toggleUseCase(useCase)}
                   className={`w-full text-left px-3 py-2 text-xs rounded-md border transition-all flex items-center justify-between cursor-pointer ${
                     isChecked
-                      ? 'bg-indigo-550/10 text-indigo-400 border-indigo-500/40 font-semibold'
-                      : 'bg-slate-950/30 text-slate-400 border-brand-border hover:bg-slate-900/40'
+                      ? 'bg-indigo-50 hover:bg-indigo-100 border-indigo-200 text-indigo-700 dark:bg-indigo-500/10 dark:hover:bg-indigo-500/20 dark:text-indigo-400 dark:border-indigo-500/40 font-semibold'
+                      : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100 dark:bg-slate-900/40 dark:text-slate-400 dark:border-brand-border dark:hover:bg-slate-800/40'
                   }`}
                   id={`filter-usecase-${useCase.replace(/\s+/g, '-')}`}
                 >
                   <span className="truncate">{useCase}</span>
-                  {isChecked && <Check className="w-3.5 h-3.5 text-indigo-400" />}
+                  {isChecked && <Check className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />}
                 </button>
               );
             })}
@@ -255,13 +255,13 @@ export default function RegistryPanel({
                   onClick={() => toggleSizeBracket(b.id)}
                   className={`w-full text-left p-2.5 rounded-md border transition-all flex flex-col cursor-pointer ${
                     isChecked
-                      ? 'bg-indigo-550/10 text-indigo-400 border-indigo-500/40 font-medium'
-                      : 'bg-slate-950/30 text-slate-400 border-brand-border hover:bg-slate-900/40'
+                      ? 'bg-indigo-50 hover:bg-indigo-100 border-indigo-200 text-indigo-700 dark:bg-indigo-500/10 dark:hover:bg-indigo-500/20 dark:text-indigo-400 dark:border-indigo-500/40 font-semibold'
+                      : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100 dark:bg-slate-900/40 dark:text-slate-400 dark:border-brand-border dark:hover:bg-slate-800/40'
                   }`}
                   id={`filter-size-${b.id}`}
                 >
                   <span className="text-xs font-bold font-sans">{b.name}</span>
-                  <span className="text-[10px] text-slate-400 leading-none mt-1">{b.desc}</span>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 leading-none mt-1">{b.desc}</span>
                 </button>
               );
             })}
@@ -338,7 +338,7 @@ export default function RegistryPanel({
                   <div className="flex items-center gap-2 pt-1">
                     <button
                       onClick={() => onSelectVramModel(model.id)}
-                      className="flex-1 text-[11px] font-bold text-center py-2 bg-slate-900/60 hover:bg-slate-800 text-slate-300 rounded border border-brand-border hover:text-white transition-all cursor-pointer"
+                      className="flex-1 text-[11px] font-bold text-center py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-900/60 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded border border-slate-200 dark:border-brand-border transition-all cursor-pointer"
                     >
                       Calc VRAM
                     </button>
@@ -509,14 +509,31 @@ export default function RegistryPanel({
 
                     {/* Tags */}
                     <div className="flex flex-wrap gap-1.5 mb-4">
-                      {model.primaryUseCases.map((useCase) => (
-                        <span
-                          key={useCase}
-                          className="text-[10px] sm:text-xs font-medium font-mono bg-slate-950/70 text-slate-300 border border-brand-border px-2.5 py-1 rounded-sm"
-                        >
-                          {useCase}
-                        </span>
-                      ))}
+                      {model.primaryUseCases.map((useCase) => {
+                        // Custom colorful high-contrast badges based on specific specialty
+                        let badgeColor = 'bg-slate-100 border-slate-200 text-slate-700 dark:bg-slate-900/60 dark:text-slate-300 dark:border-slate-800';
+                        if (useCase === 'Coding') {
+                          badgeColor = 'bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-500/10 dark:border-emerald-500/25 dark:text-emerald-400';
+                        } else if (useCase === 'Reasoning & Math') {
+                          badgeColor = 'bg-amber-50 border-amber-200 text-amber-800 dark:bg-amber-500/10 dark:border-amber-500/25 dark:text-amber-400';
+                        } else if (useCase === 'General Assistant') {
+                          badgeColor = 'bg-indigo-50 border-indigo-200 text-indigo-700 dark:bg-indigo-500/10 dark:border-indigo-500/25 dark:text-indigo-400';
+                        } else if (useCase === 'Multimodal / Vision') {
+                          badgeColor = 'bg-purple-50 border-purple-200 text-purple-700 dark:bg-purple-500/10 dark:border-purple-500/25 dark:text-purple-400';
+                        } else if (useCase === 'Local / On-device') {
+                          badgeColor = 'bg-sky-50 border-sky-200 text-sky-700 dark:bg-sky-500/10 dark:border-sky-500/25 dark:text-sky-400';
+                        } else if (useCase === 'Low-Latency') {
+                          badgeColor = 'bg-rose-50 border-rose-200 text-rose-700 dark:bg-rose-500/10 dark:border-rose-500/25 dark:text-rose-400';
+                        }
+                        return (
+                          <span
+                            key={useCase}
+                            className={`text-[10px] sm:text-xs font-semibold font-mono border px-2.5 py-1 rounded-sm shadow-xs ${badgeColor}`}
+                          >
+                            {useCase}
+                          </span>
+                        );
+                      })}
                     </div>
 
                     {/* Expanded Technical Details Drawer - Built directly inside card for perfect readability */}
@@ -635,7 +652,7 @@ export default function RegistryPanel({
                           className={`flex items-center gap-1 px-3 py-1.5 text-xs font-bold rounded-md transition-all border cursor-pointer font-sans ${
                             isInCompare
                               ? 'bg-indigo-500/10 border-indigo-500/40 text-indigo-400 hover:bg-indigo-600/10'
-                              : 'bg-slate-950 border-brand-border text-slate-300 hover:text-white hover:border-slate-700'
+                              : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-950 border-slate-200 dark:border-brand-border text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-700'
                           }`}
                           id={`card-compare-btn-${model.id}`}
                         >

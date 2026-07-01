@@ -194,10 +194,10 @@ export default function TrafficAndContactWidgets({ currentTab }: TrafficAndConta
             setShowTrafficDrawer(!showTrafficDrawer);
             setShowWhatsAppPopup(false);
           }}
-          className={`flex items-center gap-2 p-3 rounded-full text-slate-100 shadow-xl border hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer ${
+          className={`flex items-center gap-2 p-3 rounded-full shadow-xl border hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer ${
             showTrafficDrawer 
-              ? 'bg-indigo-600 border-indigo-500' 
-              : 'bg-slate-900/90 hover:bg-slate-800 border-brand-border backdrop-blur-md'
+              ? 'bg-indigo-600 border-indigo-500 text-white' 
+              : 'bg-white hover:bg-slate-100 border-slate-200 text-slate-700 dark:bg-slate-900/90 dark:hover:bg-slate-800 dark:border-brand-border dark:text-slate-100 backdrop-blur-md'
           }`}
           title="Live Traffic and Geolocation Telemetry"
           id="traffic-floating-trigger"
@@ -441,7 +441,7 @@ export default function TrafficAndContactWidgets({ currentTab }: TrafficAndConta
             </div>
             
             <a 
-              href="https://github.com/balavenkatesh3322" 
+              href="https://github.com/balavenkatesh3322/open-llm-registry" 
               target="_blank" 
               referrerPolicy="no-referrer"
               className="w-full py-2 bg-slate-950 hover:bg-slate-800 border border-brand-border hover:border-slate-700 text-slate-200 hover:text-white rounded text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer transition-all"
