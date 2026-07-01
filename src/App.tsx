@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { OPEN_SOURCE_MODELS, fetchModelsFromReadme } from './data/models';
+import { 
+  OPEN_SOURCE_MODELS, 
+  fetchModelsFromReadme, 
+  fetchModelsFromMarkdownFiles, 
+  fetchHomePageContent, 
+  HomePageContent 
+} from './data/models';
 import RegistryPanel from './components/RegistryPanel';
 import VramCalculator from './components/VramCalculator';
 import ComparisonCanvas from './components/ComparisonCanvas';
@@ -30,16 +36,35 @@ import {
   Moon
 } from 'lucide-react';
 
+const renderStyledHeroTitle = (title: string) => {
+  const keyword = "Open-Source LLMs";
+  if (title.includes(keyword)) {
+    const parts = title.split(keyword);
+    return (
+      <>
+        {parts[0]}
+        <span className="bg-gradient-to-r from-indigo-400 via-rose-300 to-emerald-400 bg-clip-text text-transparent font-extrabold">{keyword}</span>
+        {parts[1]}
+      </>
+    );
+  }
+  return title;
+};
+
+const IconMap: Record<string, React.ComponentType<any>> = {
+  TrendingUp,
+  Terminal,
+  Award
+};
+
 export default function App() {
   const [models, setModels] = useState(OPEN_SOURCE_MODELS);
   const [activeTab, setActiveTab] = useState<'registry' | 'vram' | 'compare' | 'wizard' | 'engines' | 'sync'>('registry');
   const [selectedCompareIds, setSelectedCompareIds] = useState<string[]>(['deepseek-r1', 'llama-3.3-70b-instruct']);
   const [selectedVramModelId, setSelectedVramModelId] = useState<string>('llama-3.3-70b-instruct');
   const [globalSearch, setGlobalSearch] = useState('');
-  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-    const saved = localStorage.getItem('theme');
-    return (saved as 'light' | 'dark') || 'light';
-  });
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [homeContent, setHomeContent] = useState<HomePageContent | null>(null);
 
   // Apply theme class to HTML element
   useEffect(() => {
@@ -52,16 +77,29 @@ export default function App() {
     localStorage.setItem('theme', theme);
   }, [theme]);
 
-  // Load models from README.md on mount
+  // Load models and page contents from markdown files on mount
   useEffect(() => {
     let active = true;
-    async function loadModels() {
-      const readmeModels = await fetchModelsFromReadme();
-      if (readmeModels && active) {
-        setModels(readmeModels);
+    async function loadDynamicContent() {
+      // 1. Try to load models from modular markdown registry files
+      const markdownModels = await fetchModelsFromMarkdownFiles();
+      if (markdownModels && active) {
+        setModels(markdownModels);
+      } else {
+        // Fallback to README.md if markdown folder is not accessible
+        const readmeModels = await fetchModelsFromReadme();
+        if (readmeModels && active) {
+          setModels(readmeModels);
+        }
+      }
+
+      // 2. Load dynamic home page content from markdown
+      const homeData = await fetchHomePageContent();
+      if (homeData && active) {
+        setHomeContent(homeData);
       }
     }
-    loadModels();
+    loadDynamicContent();
     return () => {
       active = false;
     };
@@ -127,12 +165,12 @@ export default function App() {
             </div>
 
             {/* Middle-Left: Global Interactive Search Bar (Hugging Face style) */}
-            <div className="hidden md:flex items-center relative max-w-xs xl:max-w-sm w-full">
+            <div className="hidden md:flex xl:hidden 2xl:flex items-center relative max-w-[160px] lg:max-w-xs w-full">
               <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 pointer-events-none" />
               <input
                 id="header-search-input"
                 type="text"
-                placeholder="Search models, tasks, licenses... (Ctrl+K)"
+                placeholder="Search models..."
                 value={globalSearch}
                 onChange={(e) => {
                   setGlobalSearch(e.target.value);
@@ -140,15 +178,15 @@ export default function App() {
                     setActiveTab('registry');
                   }
                 }}
-                className="w-full pl-8 pr-12 py-1.5 bg-slate-900/60 border border-brand-border rounded text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/10 transition-all font-sans"
+                className="w-full pl-8 pr-10 py-1.5 bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-brand-border rounded text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/10 transition-all font-sans"
               />
-              <span className="absolute right-2 text-[9px] font-mono font-bold px-1 py-0.2 rounded bg-slate-950 border border-brand-border/60 text-slate-500 pointer-events-none">
+              <span className="absolute right-2 text-[9px] font-mono font-bold px-1 py-0.2 rounded bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-brand-border/60 text-slate-400 dark:text-slate-500 pointer-events-none">
                 Ctrl+K
               </span>
             </div>
 
             {/* Middle-Right: Beautiful Navigation Tabs (similar to HF header tabs: light text with icons, active state uses a subtle underline/capsule) */}
-            <nav className="hidden lg:flex items-center gap-1 overflow-x-auto scrollbar-none pb-0.5" id="desktop-navbar">
+            <nav className="hidden xl:flex items-center gap-1 overflow-x-auto scrollbar-none pb-0.5 flex-1 min-w-0 justify-end" id="desktop-navbar">
               <button
                 onClick={() => setActiveTab('registry')}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-semibold tracking-tight transition-all cursor-pointer border shrink-0 ${
@@ -236,11 +274,11 @@ export default function App() {
             {/* Right Side Actions / GitHub */}
             <div className="flex items-center gap-2 shrink-0">
               {/* Dropdown for smaller screens where the horizontal menu would wrap */}
-              <div className="lg:hidden hidden md:block">
+              <div className="xl:hidden hidden md:block">
                 <select
                   value={activeTab}
                   onChange={(e) => setActiveTab(e.target.value as any)}
-                  className="bg-slate-900 border border-brand-border text-xs rounded px-2.5 py-1.5 text-slate-300 focus:outline-none focus:border-indigo-500/50 cursor-pointer font-semibold"
+                  className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-brand-border text-xs rounded px-2.5 py-1.5 text-slate-700 dark:text-slate-300 focus:outline-none focus:border-indigo-500/50 cursor-pointer font-semibold"
                 >
                   <option value="registry">Explore Models</option>
                   <option value="wizard">LLM Advisor</option>
@@ -253,22 +291,11 @@ export default function App() {
 
               <button
                 onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-                className="p-2 bg-slate-900/60 border border-brand-border hover:bg-slate-800 rounded text-slate-400 hover:text-slate-100 transition-all cursor-pointer flex items-center justify-center shrink-0"
+                className="p-2 bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-brand-border hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-all cursor-pointer flex items-center justify-center shrink-0"
                 title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
               >
                 {theme === 'light' ? <Moon className="w-4 h-4 text-indigo-400" /> : <Sun className="w-4 h-4 text-amber-500 animate-spin-slow" />}
               </button>
-
-              <a
-                href="https://balavenkatesh3322.github.io/bala_venkatesh_profile/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600/10 hover:bg-indigo-600/20 border border-indigo-500/30 hover:border-indigo-500/50 rounded text-xs font-semibold text-indigo-300 hover:text-indigo-200 transition-all cursor-pointer"
-                title="Developer Portfolio"
-              >
-                <Globe className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Portfolio</span>
-              </a>
             </div>
 
           </div>
@@ -364,13 +391,17 @@ export default function App() {
             <div className="lg:col-span-8 space-y-4">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-500/5 border border-indigo-500/20 text-indigo-300 rounded-sm text-[10px] font-mono tracking-wider font-semibold">
                 <Zap className="w-3.5 h-3.5 animate-pulse text-indigo-400" />
-                <span>100% COMPATIBLE WITH OLLAMA, VLLM & HUGGING FACE</span>
+                <span>{homeContent?.heroBadge || "100% COMPATIBLE WITH OLLAMA, VLLM & HUGGING FACE"}</span>
               </div>
               <h2 className="text-lg sm:text-2xl font-bold text-slate-100 tracking-tight leading-tight font-display">
-                Discover & Deploy the Perfect <span className="bg-gradient-to-r from-indigo-400 via-rose-300 to-emerald-400 bg-clip-text text-transparent font-extrabold font-semibold">Open-Source LLMs</span> In Seconds
+                {homeContent?.heroTitle ? (
+                  renderStyledHeroTitle(homeContent.heroTitle)
+                ) : (
+                  <>Discover & Deploy the Perfect <span className="bg-gradient-to-r from-indigo-400 via-rose-300 to-emerald-400 bg-clip-text text-transparent font-extrabold font-semibold">Open-Source LLMs</span> In Seconds</>
+                )}
               </h2>
               <p className="text-xs sm:text-sm text-slate-400 leading-relaxed font-sans max-w-2xl">
-                Avoid catalog fatigue. Discover, analyze, and test the finest open-weight models vetted by execution benchmarks, licenses, and context limits. Compute local VRAM hardware compatibility and compare execution structures in 30 seconds.
+                {homeContent?.heroDescription || "Avoid catalog fatigue. Discover, analyze, and test the finest open-weight models vetted by execution benchmarks, licenses, and context limits. Compute local VRAM hardware compatibility and compare execution structures in 30 seconds."}
               </p>
               
               <div className="flex flex-wrap items-center gap-3 pt-1">
@@ -383,7 +414,7 @@ export default function App() {
                 </button>
                 <button
                   onClick={() => setActiveTab('wizard')}
-                  className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-900/50 dark:hover:bg-slate-900 border border-slate-200 dark:border-brand-border hover:border-slate-300 dark:hover:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold rounded-md transition-all cursor-pointer"
+                  className="px-4 py-2.5 bg-white hover:bg-slate-50 dark:bg-slate-900/50 dark:hover:bg-slate-900 border border-slate-200 dark:border-brand-border hover:border-slate-300 dark:hover:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold rounded-md transition-all cursor-pointer"
                   id="hero-quiz-cta"
                 >
                   Guided Model Matcher
@@ -483,35 +514,72 @@ export default function App() {
 
         {/* Secondary Info / Use Guide block (Anti-AI-Slop & Human Vibe focus) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 glass-panel p-6" id="footer-educational-grid">
-          <div className="space-y-2.5 p-1 border-b md:border-b-0 md:border-r border-brand-border/60 last:border-0 md:pr-6 md:last:pr-0">
-            <div className="flex items-center gap-2">
-              <span className="p-1.5 bg-indigo-500/5 rounded-md border border-indigo-500/10 text-indigo-400"><TrendingUp className="w-4 h-4" /></span>
-              <h4 className="text-xs font-bold uppercase tracking-wider font-display text-slate-200">How to choose quantization?</h4>
-            </div>
-            <p className="text-[11px] text-slate-400 leading-relaxed font-sans">
-              <strong>Q4_K_M</strong> (4-bit quantization) is the gold standard for running open LLMs locally. It reduces weight size by 70%+ with virtually zero noticeable loss in conversational intelligence. Only choose 16-bit float if doing complex scientific evaluations.
-            </p>
-          </div>
+          {homeContent?.guides && homeContent.guides.length > 0 ? (
+            homeContent.guides.map((guide, idx) => {
+              const GuideIcon = IconMap[guide.icon] || Award;
+              let borderClass = "";
+              if (idx === 0) borderClass = "border-b md:border-b-0 md:border-r border-brand-border/60 last:border-0 md:pr-6 md:last:pr-0";
+              else if (idx === 1) borderClass = "border-b md:border-b-0 md:border-r border-brand-border/60 last:border-0 md:px-6 md:last:border-0";
+              else borderClass = "last:border-0 md:pl-6";
 
-          <div className="space-y-2.5 p-1 border-b md:border-b-0 md:border-r border-brand-border/60 last:border-0 md:px-6 md:last:border-0">
-            <div className="flex items-center gap-2">
-              <span className="p-1.5 bg-emerald-500/5 rounded-md border border-emerald-500/10 text-emerald-400"><Terminal className="w-4 h-4" /></span>
-              <h4 className="text-xs font-bold uppercase tracking-wider font-display text-slate-200">Why local models?</h4>
-            </div>
-            <p className="text-[11px] text-slate-400 leading-relaxed font-sans">
-              Running models offline ensures 100% data privacy (crucial for proprietary codebases or medical/financial context), works entirely without internet connection, has zero per-token execution costs, and bypasses third-party rate limits.
-            </p>
-          </div>
+              return (
+                <div key={guide.id} className={`space-y-2.5 p-1 ${borderClass}`}>
+                  <div className="flex items-center gap-2">
+                    <span className="p-1.5 bg-indigo-500/5 rounded-md border border-indigo-500/10 text-indigo-400">
+                      <GuideIcon className="w-4 h-4" />
+                    </span>
+                    <h4 className="text-xs font-bold uppercase tracking-wider font-display text-slate-200">{guide.title}</h4>
+                  </div>
+                  <p className="text-[11px] text-slate-400 leading-relaxed font-sans">
+                    {guide.description.includes('**') ? (
+                      (() => {
+                        const parts = guide.description.split('**');
+                        return (
+                          <>
+                            {parts.map((part, pIdx) => pIdx % 2 === 1 ? <strong key={pIdx} className="font-semibold text-slate-200">{part}</strong> : part)}
+                          </>
+                        );
+                      })()
+                    ) : (
+                      guide.description
+                    )}
+                  </p>
+                </div>
+              );
+            })
+          ) : (
+            <>
+              <div className="space-y-2.5 p-1 border-b md:border-b-0 md:border-r border-brand-border/60 last:border-0 md:pr-6 md:last:pr-0">
+                <div className="flex items-center gap-2">
+                  <span className="p-1.5 bg-indigo-500/5 rounded-md border border-indigo-500/10 text-indigo-400"><TrendingUp className="w-4 h-4" /></span>
+                  <h4 className="text-xs font-bold uppercase tracking-wider font-display text-slate-200">How to choose quantization?</h4>
+                </div>
+                <p className="text-[11px] text-slate-400 leading-relaxed font-sans">
+                  <strong>Q4_K_M</strong> (4-bit quantization) is the gold standard for running open LLMs locally. It reduces weight size by 70%+ with virtually zero noticeable loss in conversational intelligence. Only choose 16-bit float if doing complex scientific evaluations.
+                </p>
+              </div>
 
-          <div className="space-y-2.5 p-1 last:border-0 md:pl-6">
-            <div className="flex items-center gap-2">
-              <span className="p-1.5 bg-amber-500/5 rounded-md border border-amber-500/10 text-amber-400"><Award className="w-4 h-4" /></span>
-              <h4 className="text-xs font-bold uppercase tracking-wider font-display text-slate-200">Our evaluation strategy</h4>
-            </div>
-            <p className="text-[11px] text-slate-400 leading-relaxed font-sans">
-              Instead of loading custom proprietary test benches, we curate authenticated industry ratings across MMLU (high-level general knowledge), HumanEval (strict Python code block accuracy tests), and GSM8K (high-school multi-step mathematical reasoning).
-            </p>
-          </div>
+              <div className="space-y-2.5 p-1 border-b md:border-b-0 md:border-r border-brand-border/60 last:border-0 md:px-6 md:last:border-0">
+                <div className="flex items-center gap-2">
+                  <span className="p-1.5 bg-emerald-500/5 rounded-md border border-emerald-500/10 text-emerald-400"><Terminal className="w-4 h-4" /></span>
+                  <h4 className="text-xs font-bold uppercase tracking-wider font-display text-slate-200">Why local models?</h4>
+                </div>
+                <p className="text-[11px] text-slate-400 leading-relaxed font-sans">
+                  Running models offline ensures 100% data privacy (crucial for proprietary codebases or medical/financial context), works entirely without internet connection, has zero per-token execution costs, and bypasses third-party rate limits.
+                </p>
+              </div>
+
+              <div className="space-y-2.5 p-1 last:border-0 md:pl-6">
+                <div className="flex items-center gap-2">
+                  <span className="p-1.5 bg-amber-500/5 rounded-md border border-amber-500/10 text-amber-400"><Award className="w-4 h-4" /></span>
+                  <h4 className="text-xs font-bold uppercase tracking-wider font-display text-slate-200">Our evaluation strategy</h4>
+                </div>
+                <p className="text-[11px] text-slate-400 leading-relaxed font-sans">
+                  Instead of loading custom proprietary test benches, we curate authenticated industry ratings across MMLU (high-level general knowledge), HumanEval (strict Python code block accuracy tests), and GSM8K (high-school multi-step mathematical reasoning).
+                </p>
+              </div>
+            </>
+          )}
         </div>
       </main>
 

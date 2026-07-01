@@ -1,6 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap');
 @import "tailwindcss";
 
+@variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
   --font-display: "Space Grotesk", sans-serif;
@@ -148,7 +150,9 @@ h1, h2, h3, h4, h5, h6 {
 :root:not(.dark) .bg-slate-950,
 :root:not(.dark) .bg-slate-900,
 :root:not(.dark) .bg-slate-900\/60,
-:root:not(.dark) .bg-brand-nav {
+:root:not(.dark) .bg-brand-nav,
+:root:not(.dark) .glass-panel,
+:root:not(.dark) .glass-card {
   background-color: #ffffff !important;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05) !important;
 }
@@ -287,4 +291,38 @@ h1, h2, h3, h4, h5, h6 {
 }
 :root.dark ::-webkit-scrollbar-thumb:hover {
   background: #334155;
+}
+
+/* Specific Light Mode Rules for Sidebar Filters & Floating Live Traffic Widget */
+:root:not(.dark) #sidebar-filters button:not([class*="bg-indigo"]) {
+  background-color: #ffffff !important;
+  color: #1e293b !important;
+  border-color: #e2e8f0 !important;
+}
+:root:not(.dark) #sidebar-filters button:not([class*="bg-indigo"]):hover {
+  background-color: #f8fafc !important;
+}
+:root:not(.dark) #sidebar-filters button[class*="bg-indigo"] {
+  background-color: #e0e7ff !important;
+  color: #4f46e5 !important;
+  border-color: #c7d2fe !important;
+}
+:root:not(.dark) #sidebar-filters button[class*="bg-indigo"]:hover {
+  background-color: #c7d2fe !important;
+}
+
+/* Live Traffic Button override in Light Mode */
+:root:not(.dark) #traffic-floating-trigger:not(.bg-indigo-600) {
+  background-color: #ffffff !important;
+  color: #1e293b !important;
+  border-color: #e2e8f0 !important;
+}
+:root:not(.dark) #traffic-floating-trigger:not(.bg-indigo-600):hover {
+  background-color: #f8fafc !important;
+}
+:root:not(.dark) #traffic-floating-trigger span {
+  color: #475569 !important;
+}
+:root:not(.dark) #traffic-floating-trigger span[class*="text-indigo"] {
+  color: #4f46e5 !important;
 }

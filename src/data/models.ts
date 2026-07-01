@@ -1207,9 +1207,279 @@ export const QUANTIZATION_OPTIONS: QuantizationOption[] = [
   }
 ];
 
+export function parseModelMarkdown(id: string, text: string): ModelMetadata {
+  // Extract Frontmatter
+  const frontmatterMatch = text.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  const metadata: Record<string, any> = {};
+  let body = '';
+
+  if (frontmatterMatch) {
+    const fmText = frontmatterMatch[1];
+    body = text.substring(frontmatterMatch[0].length).trim();
+
+    // Parse simple frontmatter keys
+    const lines = fmText.split('\n');
+    for (const line of lines) {
+      const colonIndex = line.indexOf(':');
+      if (colonIndex !== -1) {
+        const key = line.substring(0, colonIndex).trim();
+        let value = line.substring(colonIndex + 1).trim();
+        // Remove surrounding quotes
+        value = value.replace(/^['"]|['"]$/g, '');
+        
+        if (value === 'true') {
+          metadata[key] = true;
+        } else if (value === 'false') {
+          metadata[key] = false;
+        } else if (!isNaN(Number(value)) && value !== '') {
+          metadata[key] = Number(value);
+        } else {
+          metadata[key] = value;
+        }
+      }
+    }
+  } else {
+    body = text;
+  }
+
+  // Parse body for description, pros, and cons
+  let description = '';
+  const pros: string[] = [];
+  const cons: string[] = [];
+
+  // Split body by lines to extract description, pros, and cons
+  const bodyLines = body.split('\n');
+  let currentSection: 'description' | 'pros' | 'cons' | 'none' = 'none';
+
+  for (const line of bodyLines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+
+    if (trimmed.startsWith('# ')) {
+      currentSection = 'description';
+      continue;
+    }
+    if (trimmed.startsWith('## Pros')) {
+      currentSection = 'pros';
+      continue;
+    }
+    if (trimmed.startsWith('## Cons')) {
+      currentSection = 'cons';
+      continue;
+    }
+
+    if (currentSection === 'description') {
+      if (trimmed.startsWith('##') || trimmed.startsWith('#')) {
+        currentSection = 'none';
+      } else {
+        if (!description) {
+          description = trimmed;
+        } else {
+          description += ' ' + trimmed;
+        }
+      }
+    } else if (currentSection === 'pros' && trimmed.startsWith('-')) {
+      pros.push(trimmed.substring(1).trim());
+    } else if (currentSection === 'cons' && trimmed.startsWith('-')) {
+      cons.push(trimmed.substring(1).trim());
+    }
+  }
+
+  // Parse primaryUseCases array
+  let primaryUseCases: any[] = [];
+  if (metadata.primaryUseCases) {
+    const str = String(metadata.primaryUseCases).trim();
+    if (str.startsWith('[') && str.endsWith(']')) {
+      primaryUseCases = str.slice(1, -1)
+        .split(',')
+        .map(s => s.trim().replace(/^['"]|['"]$/g, ''))
+        .filter(Boolean);
+    } else {
+      primaryUseCases = [str];
+    }
+  }
+  if (primaryUseCases.length === 0) {
+    primaryUseCases = ['General Assistant'];
+  }
+
+  return {
+    id: metadata.id || id,
+    name: metadata.name || id,
+    provider: metadata.provider || 'Other',
+    releaseDate: metadata.releaseDate || '',
+    description: description || metadata.description || '',
+    parameters: metadata.parameters || 'N/A',
+    activeParameters: metadata.activeParameters || undefined,
+    contextWindow: metadata.contextWindow || 8192,
+    license: metadata.license || 'Proprietary',
+    commercialAllowed: metadata.commercialAllowed !== undefined ? metadata.commercialAllowed : true,
+    primaryUseCases: primaryUseCases as any,
+    benchmarks: {
+      mmlu: metadata.mmlu || 0,
+      humanEval: metadata.humanEval || 0,
+      gsm8k: metadata.gsm8k || 0,
+      vision: metadata.vision ? Number(metadata.vision) : undefined
+    },
+    deployment: {
+      ollamaId: metadata.ollamaId || '',
+      hfRepo: metadata.hfRepo || '',
+      vllmId: metadata.vllmId || '',
+      runCommand: metadata.runCommand || ''
+    },
+    pros: pros.length > 0 ? pros : (metadata.pros || []),
+    cons: cons.length > 0 ? cons : (metadata.cons || []),
+    sizeInGb: metadata.sizeInGb || 0,
+    downloads: metadata.downloads || undefined,
+    likes: metadata.likes || undefined,
+    lastUpdated: metadata.lastUpdated || undefined,
+    onyxLeaderboardRank: metadata.onyxLeaderboardRank || undefined
+  };
+}
+
+export async function fetchModelsFromMarkdownFiles(): Promise<ModelMetadata[] | null> {
+  try {
+    // 1. Fetch ./content/registry/index.md to get the models manifest list
+    const response = await fetch('./content/registry/index.md');
+    if (!response.ok) {
+      console.warn('Failed to fetch ./content/registry/index.md. Using static fallbacks.');
+      return null;
+    }
+    const text = await response.text();
+
+    // 2. Extract JSON block containing model paths
+    const jsonRegex = /```json\r?\n([\s\S]*?)\r?\n```/;
+    const jsonMatch = text.match(jsonRegex);
+    if (!jsonMatch) {
+      console.warn('Failed to find JSON list in index.md. Using static fallbacks.');
+      return null;
+    }
+
+    const items = JSON.parse(jsonMatch[1]);
+    if (!Array.isArray(items) || items.length === 0) {
+      return null;
+    }
+
+    // 3. Load all model files in parallel using Promise.all
+    const fetchedModels = await Promise.all(
+      items.map(async (item) => {
+        try {
+          // Normalize file path relative to ./content/registry/
+          const relativePath = item.file.replace(/^\.\//, '');
+          const modelRes = await fetch(`./content/registry/${relativePath}`);
+          if (!modelRes.ok) {
+            throw new Error(`Failed to load ${item.file}`);
+          }
+          const modelText = await modelRes.text();
+          return parseModelMarkdown(item.id, modelText);
+        } catch (err) {
+          console.error(`Error loading model ${item.id} from markdown:`, err);
+          return null;
+        }
+      })
+    );
+
+    // Filter out any failed requests
+    const validModels = fetchedModels.filter((m): m is ModelMetadata => m !== null);
+    if (validModels.length > 0) {
+      console.log(`Successfully fetched and parsed ${validModels.length} models from individual markdown files!`);
+      return validModels;
+    }
+    return null;
+  } catch (error) {
+    console.error('Error fetching/parsing models from markdown directory structure:', error);
+    return null;
+  }
+}
+
+export interface HomePageContent {
+  heroBadge: string;
+  heroTitle: string;
+  heroDescription: string;
+  guides: {
+    id: string;
+    title: string;
+    icon: string;
+    description: string;
+  }[];
+}
+
+export async function fetchHomePageContent(): Promise<HomePageContent | null> {
+  try {
+    const response = await fetch('./content/pages/home.md');
+    if (!response.ok) {
+      console.warn('Failed to fetch homepage content markdown. Using fallbacks.');
+      return null;
+    }
+    const text = await response.text();
+
+    // Extract frontmatter
+    const frontmatterMatch = text.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+    if (!frontmatterMatch) return null;
+
+    const fmText = frontmatterMatch[1];
+    const data: Record<string, any> = {};
+
+    // Parse simple frontmatter yaml/text lines supporting guides lists
+    const lines = fmText.split('\n');
+    let currentKey = '';
+    let currentGuide: any = null;
+    const guides: any[] = [];
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) continue;
+
+      // Detect list item start
+      if (trimmed.startsWith('- id:')) {
+        if (currentGuide) {
+          guides.push(currentGuide);
+        }
+        const idVal = trimmed.substring(trimmed.indexOf(':') + 1).trim().replace(/^['"]|['"]$/g, '');
+        currentGuide = { id: idVal };
+        currentKey = 'guide';
+        continue;
+      }
+
+      if (currentGuide && trimmed.startsWith('title:') && currentKey === 'guide') {
+        currentGuide.title = trimmed.substring(trimmed.indexOf(':') + 1).trim().replace(/^['"]|['"]$/g, '');
+        continue;
+      }
+      if (currentGuide && trimmed.startsWith('icon:') && currentKey === 'guide') {
+        currentGuide.icon = trimmed.substring(trimmed.indexOf(':') + 1).trim().replace(/^['"]|['"]$/g, '');
+        continue;
+      }
+      if (currentGuide && trimmed.startsWith('description:') && currentKey === 'guide') {
+        currentGuide.description = trimmed.substring(trimmed.indexOf(':') + 1).trim().replace(/^['"]|['"]$/g, '');
+        continue;
+      }
+
+      const colonIndex = line.indexOf(':');
+      if (colonIndex !== -1 && !trimmed.startsWith('-')) {
+        const key = line.substring(0, colonIndex).trim();
+        const val = line.substring(colonIndex + 1).trim().replace(/^['"]|['"]$/g, '');
+        data[key] = val;
+        currentKey = key;
+      }
+    }
+
+    if (currentGuide) {
+      guides.push(currentGuide);
+    }
+
+    return {
+      heroBadge: data.heroBadge || '',
+      heroTitle: data.heroTitle || '',
+      heroDescription: data.heroDescription || '',
+      guides: guides.length > 0 ? guides : []
+    };
+  } catch (error) {
+    console.error('Error loading homepage markdown content:', error);
+    return null;
+  }
+}
+
 export async function fetchModelsFromReadme(): Promise<ModelMetadata[] | null> {
   try {
-    // Fetch ./README.md relative to current page location to support github pages sub-folders
     const response = await fetch('./README.md');
     if (!response.ok) {
       console.warn('Failed to fetch ./README.md. Using static fallback models.');
@@ -1224,26 +1494,20 @@ export async function fetchModelsFromReadme(): Promise<ModelMetadata[] | null> {
     const endIndex = text.indexOf(endMarker);
     
     if (startIndex === -1 || endIndex === -1) {
-      console.warn('Could not find registry data markers in README.md, utilizing fallback data');
       return null;
     }
     
     const blockContent = text.substring(startIndex + startMarker.length, endIndex).trim();
-    
-    // Find the outer bounds of the JSON array safely to bypass any regex or formatting issues
     const firstBracket = blockContent.indexOf('[');
     const lastBracket = blockContent.lastIndexOf(']');
     
     if (firstBracket === -1 || lastBracket === -1 || lastBracket < firstBracket) {
-      console.warn('Could not find valid JSON array bounds in README blockContent');
       return null;
     }
     
     const jsonText = blockContent.substring(firstBracket, lastBracket + 1).trim();
-    
     const parsed = JSON.parse(jsonText);
     if (Array.isArray(parsed) && parsed.length > 0) {
-      console.log(`Successfully fetched and parsed ${parsed.length} models dynamically from README.md!`);
       return parsed as ModelMetadata[];
     }
     return null;
